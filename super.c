@@ -2,7 +2,19 @@
 #include "myfs.h"
 
 static int myfs_fill_super(struct super_block *sb, void *data, int silent) {
-    // Initialize superblock and root inode here
+    struct inode *root_inode;
+
+    sb->s_magic = MYFS_MAGIC_NUMBER; // Custom file system magic number
+    sb->s_op = &myfs_super_ops;      // Pointer to your superblock operations
+
+    root_inode = myfs_make_inode(sb, S_IFDIR | 0755); // Create root inode
+    if (!root_inode)
+        return -ENOMEM;
+
+    sb->s_root = d_make_root(root_inode); // Set the root dentry
+    if (!sb->s_root)
+        return -ENOMEM;
+
     return 0;
 }
 
